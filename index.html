@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Morphology and Physiology Quiz</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #1abc9c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --correct-color: #2ecc71;
+            --incorrect-color: #e74c3c;
+            --warning-color: #f39c12;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f9f9f9;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, var(--primary-color), #1a252f);
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .quiz-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+        }
+
+        .questions-section {
+            flex: 3;
+            min-width: 300px;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .questions-section::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .questions-section::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .questions-section::-webkit-scrollbar-thumb {
+            background: var(--secondary-color);
+            border-radius: 4px;
+        }
+
+        .sidebar {
+            flex: 1;
+            min-width: 300px;
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .progress-container {
+            margin-bottom: 30px;
+            background-color: var(--light-color);
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .progress-bar {
+            height: 12px;
+            background-color: #e0e0e0;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-color), #16a085);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .score-display {
+            text-align: center;
+            padding: 25px;
+            background: linear-gradient(135deg, var(--secondary-color), #2980b9);
+            border-radius: 10px;
+            margin-bottom: 30px;
+            color: white;
+            box-shadow: 0 4px 8px rgba(41, 128, 185, 0.3);
+        }
+
+        .score-value {
+            font-size: 3.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .score-label {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        button {
+            padding: 14px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #submitBtn {
+            background: linear-gradient(135deg, var(--secondary-color), #2980b9);
+            color: white;
+            box-shadow: 0 4px 6px rgba(41, 128, 185, 0.2);
+        }
+
+        #submitBtn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 8px rgba(41, 128, 185, 0.3);
+        }
+
+        #resetBtn {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            border: 2px solid #ddd;
+        }
+
+        #resetBtn:hover {
+            background-color: #e0e0e0;
+            transform: translateY(-2px);
+        }
+
+        .question-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .question-container.current {
+            border-left-color: var(--accent-color);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .question-header {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .question-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--primary-color);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 15px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .question-text {
+            font-size: 1.25rem;
+            font-weight: 600;
+            line-height: 1.5;
+            color: var(--primary-color);
+        }
+
+        .options {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .option {
+            flex: 1;
+        }
+
+        .option input {
+            display: none;
+        }
+
+        .option label {
+            display: block;
+            padding: 15px;
+            background-color: var(--light-color);
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .option label:hover {
+            background-color: #d5dbdb;
+            transform: translateY(-2px);
+        }
+
+        .option input:checked + label {
+            background-color: var(--secondary-color);
+            color: white;
+            box-shadow: 0 4px 6px rgba(52, 152, 219, 0.3);
+        }
+
+        .feedback {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 1rem;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .feedback.correct {
+            background-color: rgba(46, 204, 113, 0.15);
+            color: var(--correct-color);
+            border-left: 4px solid var(--correct-color);
+        }
+
+        .feedback.incorrect {
+            background-color: rgba(231, 76, 60, 0.15);
+            color: var(--incorrect-color);
+            border-left: 4px solid var(--incorrect-color);
+        }
+
+        .question-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-button {
+            padding: 12px 20px;
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .nav-button:hover {
+            background-color: #d5dbdb;
+            transform: translateY(-2px);
+        }
+
+        .question-index-container {
+            margin-top: 20px;
+        }
+
+        .question-index-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+
+        .question-index {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            max-height: 250px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .question-index::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .question-index::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+
+        .question-index::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 3px;
+        }
+
+        .index-item {
+            width: 38px;
+            height: 38px;
+            border-radius: 6px;
+            background-color: var(--light-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        }
+
+        .index-item:hover {
+            transform: scale(1.1);
+            background-color: #d5dbdb;
+        }
+
+        .index-item.answered {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .index-item.current {
+            background-color: var(--accent-color);
+            color: white;
+            transform: scale(1.15);
+            box-shadow: 0 4px 6px rgba(26, 188, 156, 0.3);
+        }
+
+        .result-section {
+            background-color: white;
+            border-radius: 10px;
+            padding: 40px;
+            margin-top: 30px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            display: none;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .result-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .result-score {
+            font-size: 4rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .result-message {
+            font-size: 1.5rem;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .result-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            margin-bottom: 40px;
+            justify-content: center;
+        }
+
+        .result-box {
+            flex: 1;
+            min-width: 200px;
+            text-align: center;
+            padding: 25px;
+            border-radius: 10px;
+            background-color: var(--light-color);
+            transition: transform 0.3s ease;
+        }
+
+        .result-box:hover {
+            transform: translateY(-5px);
+        }
+
+        .result-box h3 {
+            font-size: 1.1rem;
+            color: #7f8c8d;
+            margin-bottom: 15px;
+        }
+
+        .result-box .value {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+
+        .correct-answers .value {
+            color: var(--correct-color);
+        }
+
+        .incorrect-answers .value {
+            color: var(--incorrect-color);
+        }
+
+        .skipped-answers .value {
+            color: var(--warning-color);
+        }
+
+        .review-questions {
+            margin-top: 40px;
+        }
+
+        .review-title {
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--light-color);
+            padding-bottom: 15px;
+        }
+
+        .review-item {
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            background-color: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+
+        .review-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .review-item.correct {
+            border-left: 5px solid var(--correct-color);
+        }
+
+        .review-item.incorrect {
+            border-left: 5px solid var(--incorrect-color);
+        }
+
+        .review-question {
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .review-answer {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .review-answer span {
+            padding: 5px 12px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .review-answer .user-answer {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .review-answer .correct-answer {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .review-answer .status {
+            padding: 5px 12px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .status-correct {
+            background-color: rgba(46, 204, 113, 0.2);
+            color: var(--correct-color);
+        }
+
+        .status-incorrect {
+            background-color: rgba(231, 76, 60, 0.2);
+            color: var(--incorrect-color);
+        }
+
+        .status-skipped {
+            background-color: rgba(243, 156, 18, 0.2);
+            color: var(--warning-color);
+        }
+
+        @media (max-width: 1100px) {
+            .quiz-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                position: static;
+                min-width: 100%;
+            }
+            
+            .questions-section {
+                max-height: none;
+                overflow-y: visible;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .question-text {
+                font-size: 1.1rem;
+            }
+            
+            .options {
+                flex-direction: column;
+            }
+            
+            .result-details {
+                flex-direction: column;
+            }
+            
+            .question-index {
+                max-height: 200px;
+            }
+        }
+
+        .quiz-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Morphology and Physiology Quiz</h1>
+        <p class="subtitle">Test your knowledge with 100 true/false questions covering biological form, function, algae, fungi, and classification</p>
+    </header>
+
+    <div class="quiz-stats">
+        <div class="stat-item">
+            <div class="stat-value" id="answeredCount">0</div>
+            <div class="stat-label">Answered</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" id="remainingCount">100</div>
+            <div class="stat-label">Remaining</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" id="timeSpent">0:00</div>
+            <div class="stat-label">Time</div>
+        </div>
+    </div>
+
+    <div class="quiz-container">
+        <section class="questions-section" id="questionsSection">
+            <!-- Questions will be dynamically inserted here -->
+        </section>
+
+        <aside class="sidebar">
+            <div class="progress-container">
+                <div class="progress-label">
+                    <span>Quiz Progress</span>
+                    <span id="progressPercentage">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <div class="score-display">
+                <div class="score-value" id="currentScore">0</div>
+                <div class="score-label">Current Score</div>
+            </div>
+
+            <div class="controls">
+                <button type="button" id="submitBtn">Submit Quiz</button>
+                <button type="button" id="resetBtn">Reset Quiz</button>
+            </div>
+
+            <div class="question-index-container">
+                <div class="question-index-title">Question Navigator</div>
+                <div class="question-index" id="questionIndex">
+                    <!-- Question index will be dynamically inserted here -->
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <section class="result-section" id="resultSection">
+        <div class="result-header">
+            <div class="result-score" id="finalScore">0/100</div>
+            <div class="result-message" id="resultMessage"></div>
+        </div>
+
+        <div class="result-details">
+            <div class="result-box correct-answers">
+                <h3>Correct Answers</h3>
+                <div class="value" id="correctCount">0</div>
+            </div>
+            <div class="result-box incorrect-answers">
+                <h3>Incorrect Answers</h3>
+                <div class="value" id="incorrectCount">0</div>
+            </div>
+            <div class="result-box skipped-answers">
+                <h3>Skipped Questions</h3>
+                <div class="value" id="skippedCount">0</div>
+            </div>
+        </div>
+
+        <div class="review-questions">
+            <h3 class="review-title">Detailed Review</h3>
+            <div id="reviewList">
+                <!-- Review items will be dynamically inserted here -->
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Correct answers for all 100 questions
+        const correctAnswers = {
+            q1: 'true', q2: 'true', q3: 'true', q4: 'false', q5: 'true',
+            q6: 'false', q7: 'true', q8: 'false', q9: 'true', q10: 'false',
+            q11: 'true', q12: 'true', q13: 'true', q14: 'true', q15: 'true',
+            q16: 'false', q17: 'true', q18: 'true', q19: 'true', q20: 'true',
+            q21: 'true', q22: 'true', q23: 'true', q24: 'true', q25: 'true',
+            q26: 'true', q27: 'true', q28: 'true', q29: 'true', q30: 'true',
+            q31: 'false', q32: 'true', q33: 'true', q34: 'true', q35: 'true',
+            q36: 'false', q37: 'true', q38: 'true', q39: 'true', q40: 'true',
+            q41: 'true', q42: 'true', q43: 'false', q44: 'true', q45: 'true',
+            q46: 'true', q47: 'true', q48: 'true', q49: 'true', q50: 'true',
+            q51: 'true', q52: 'true', q53: 'true', q54: 'true', q55: 'true',
+            q56: 'true', q57: 'true', q58: 'true', q59: 'false', q60: 'true',
+            q61: 'true', q62: 'true', q63: 'true', q64: 'true', q65: 'false',
+            q66: 'true', q67: 'true', q68: 'true', q69: 'true', q70: 'true',
+            q71: 'true', q72: 'true', q73: 'true', q74: 'true', q75: 'true',
+            q76: 'true', q77: 'true', q78: 'true', q79: 'true', q80: 'false',
+            q81: 'true', q82: 'true', q83: 'true', q84: 'true', q85: 'true',
+            q86: 'false', q87: 'true', q88: 'true', q89: 'true', q90: 'true',
+            q91: 'true', q92: 'true', q93: 'true', q94: 'true', q95: 'true',
+            q96: 'true', q97: 'true', q98: 'true', q99: 'true', q100: 'true'
+        };
+
+        // All 100 questions
+        const questions = [
+            { id: 1, text: "Morphology is the branch of biology that deals with the study of the form and structure of organisms.", answer: "true" },
+            { id: 2, text: "Aristotle classified animals based on form in his work Historia Animalium.", answer: "true" },
+            { id: 3, text: "Physiology emerged with Galen, who dissected animals to understand functions.", answer: "true" },
+            { id: 4, text: "Modern foundations of morphology and physiology were laid by von Baer and Cuvier in the 18th century.", answer: "false" },
+            { id: 5, text: "Electron microscopy in the 20th century revealed cellular details, revolutionizing both morphology and physiology.", answer: "true" },
+            { id: 6, text: "In plants, morphology includes the study of roots for photosynthesis.", answer: "false" },
+            { id: 7, text: "In animals, morphology covers body plans like radial vs. bilateral symmetry.", answer: "true" },
+            { id: 8, text: "The streamlined body shape of fish is a morphological adaptation for flying.", answer: "false" },
+            { id: 9, text: "Homologous structures indicate common ancestry, like the pentadactyl limb in vertebrates.", answer: "true" },
+            { id: 10, text: "Analogous structures show divergent evolution, like wings in birds and insects.", answer: "false" },
+            { id: 11, text: "External morphology focuses on visible features such as leaf venation patterns in plants.", answer: "true" },
+            { id: 12, text: "Internal morphology includes vascular bundles in stems, with xylem for water transport.", answer: "true" },
+            { id: 13, text: "Comparative morphology compares frog and human skeletal systems to trace tetrapod evolution.", answer: "true" },
+            { id: 14, text: "Developmental morphology studies how structures form during ontogeny, like embryological gill slits in human fetuses.", answer: "true" },
+            { id: 15, text: "Cacti have spines as modified leaves for defense and to minimize water loss.", answer: "true" },
+            { id: 16, text: "Physiology is the study of the static structures that enable life.", answer: "false" },
+            { id: 17, text: "Homeostasis refers to internal balance in organisms.", answer: "true" },
+            { id: 18, text: "In plants, physiology includes photosynthesis via the Calvin cycle in chloroplasts.", answer: "true" },
+            { id: 19, text: "In animals, physiology covers the cardiac cycle with systole and diastole in the heart.", answer: "true" },
+            { id: 20, text: "Cellular physiology includes processes like active transport via Na+/K+ pumps.", answer: "true" },
+            { id: 21, text: "Comparative physiology examines adaptations like camel's nasal countercurrent exchanger for water conservation.", answer: "true" },
+            { id: 22, text: "Pathophysiology studies disease impacts, such as how diabetes disrupts glucose physiology.", answer: "true" },
+            { id: 23, text: "Structure and function are inseparable, as per Louis Agassiz's principle.", answer: "true" },
+            { id: 24, text: "A bird's hollow bones reduce weight for flight.", answer: "true" },
+            { id: 25, text: "Alveoli's thin walls in lungs allow efficient gas exchange via Fick's law of diffusion.", answer: "true" },
+            { id: 26, text: "Pollution affecting gill morphology in fish leads to hypoxia.", answer: "true" },
+            { id: 27, text: "William Harvey linked heart morphology to blood circulation in 1628.", answer: "true" },
+            { id: 28, text: "In dental therapy, microbial morphology like cocci in Streptococcus mutans informs antibiotic targeting.", answer: "true" },
+            { id: 29, text: "Classification organizes biodiversity into hierarchical categories based on shared characteristics.", answer: "true" },
+            { id: 30, text: "The five-kingdom system was proposed by R.H. Whittaker in 1969.", answer: "true" },
+            { id: 31, text: "Algae are primarily terrestrial, photosynthetic eukaryotes.", answer: "false" },
+            { id: 32, text: "Algae contribute approximately 50-80% to atmospheric oxygen.", answer: "true" },
+            { id: 33, text: "Algae lack specialized vascular tissues.", answer: "true" },
+            { id: 34, text: "Algae are classified by pigmentation, storage reserves, and cell wall composition.", answer: "true" },
+            { id: 35, text: "Diatoms have a bipartite silica frustule with epitheca and hypotheca.", answer: "true" },
+            { id: 36, text: "Diatoms' life cycle includes predominantly sexual reproduction via auxospore formation.", answer: "false" },
+            { id: 37, text: "Euglena has a pellicle enabling euglenoid movement and a stigma for phototaxis.", answer: "true" },
+            { id: 38, text: "Euglena's life cycle is predominantly asexual through binary fission.", answer: "true" },
+            { id: 39, text: "Spirogyra has multicellular filaments with spiral chloroplasts.", answer: "true" },
+            { id: 40, text: "Spirogyra's sexual reproduction involves scalariform conjugation.", answer: "true" },
+            { id: 41, text: "Algae are used for hydrocolloids like agar from Rhodophyta.", answer: "true" },
+            { id: 42, text: "Algal blooms can produce neurotoxins affecting fisheries.", answer: "true" },
+            { id: 43, text: "Fungi have eukaryotic, filamentous or unicellular forms with chlorophyll.", answer: "false" },
+            { id: 44, text: "Fungi have chitinous cell walls and heterotrophic nutrition.", answer: "true" },
+            { id: 45, text: "Kingdom Fungi is subdivided by reproductive structures and hyphal septation.", answer: "true" },
+            { id: 46, text: "Mucor has aseptate hyphae and sporangiophores with globose sporangia.", answer: "true" },
+            { id: 47, text: "Mucor's life cycle includes asexual cycle dominating with spore germination.", answer: "true" },
+            { id: 48, text: "Pythium is a parasitic fungus with zoospores for dissemination.", answer: "true" },
+            { id: 49, text: "Pythium's sexual reproduction produces durable oospores.", answer: "true" },
+            { id: 50, text: "Fungi are used in fermentation, like Saccharomyces for ethanol production.", answer: "true" },
+            { id: 51, text: "Fungi can cause phytopathogens like Pythium-induced damping-off.", answer: "true" },
+            { id: 52, text: "Life cycles describe stages from birth to reproduction, like holometabolous metamorphosis in insects.", answer: "true" },
+            { id: 53, text: "Algae have economic value in biofuels worth $1B+ annually.", answer: "true" },
+            { id: 54, text: "Thallophyta classification originated with Linnaeus in 1753.", answer: "true" },
+            { id: 55, text: "Thallophyta are simple, thallus-bodied plants lacking differentiation into roots, stems, leaves.", answer: "true" },
+            { id: 56, text: "Algae are autotrophic via chlorophyll, while fungi are heterotrophic via absorption.", answer: "true" },
+            { id: 57, text: "Algae body forms include unicellular like Chlorella and colonial like Volvox.", answer: "true" },
+            { id: 58, text: "Diatoms have silica frustules for protection, with sizes 2-200μm.", answer: "true" },
+            { id: 59, text: "Euglena is 50-100μm long with a rigid cell wall.", answer: "false" },
+            { id: 60, text: "Spirogyra filaments are 10-100μm wide with pyrenoids for starch storage.", answer: "true" },
+            { id: 61, text: "Photosynthesis equation is 6CO₂ + 6H₂O + light → C₆H₁₂O₆ + 6O₂.", answer: "true" },
+            { id: 62, text: "Algae reproduction includes asexual zoospores or sexual oogamy in Chlamydomonas.", answer: "true" },
+            { id: 63, text: "Spirulina is used as food with 60% protein and in NASA space food.", answer: "true" },
+            { id: 64, text: "Algae contribute 50-85% to Earth's O2.", answer: "true" },
+            { id: 65, text: "Fungal mycelium consists of interwoven hyphae, septate in Zygomycota.", answer: "false" },
+            { id: 66, text: "Mucor has sporangiophore with columella and black sporangiospores.", answer: "true" },
+            { id: 67, text: "Pythium has oogonia/antheridia for sexual reproduction.", answer: "true" },
+            { id: 68, text: "Fungi exhibit extracellular digestion with enzymes like cellulases.", answer: "true" },
+            { id: 69, text: "Candida albicans switches yeast-mycelium for infection.", answer: "true" },
+            { id: 70, text: "Fungi in food include Agaricus bisporus with a $50B market.", answer: "true" },
+            { id: 71, text: "Aspergillus fumigatus causes 1.5M deaths/year.", answer: "true" },
+            { id: 72, text: "Homology refers to shared ancestry structures.", answer: "true" },
+            { id: 73, text: "The hypothalamus detects temperature changes for thermoregulation.", answer: "true" },
+            { id: 74, text: "Plaque bacteria's rod-shaped morphology causes caries through acid production.", answer: "true" },
+            { id: 75, text: "Taxonomy facilitates identification and evolutionary analysis.", answer: "true" },
+            { id: 76, text: "Protista includes algae as representative lower organisms.", answer: "true" },
+            { id: 77, text: "Algae have reproductive versatility including asexual fission and sexual gamete fusion.", answer: "true" },
+            { id: 78, text: "Diatoms exhibit intricate nanopatterns for light manipulation.", answer: "true" },
+            { id: 79, text: "Euglena has paramylon granules for carbohydrate storage.", answer: "true" },
+            { id: 80, text: "Spirogyra's life cycle has alternation of generations.", answer: "false" },
+            { id: 81, text: "Fungi play roles in nutrient cycling and pathogenesis.", answer: "true" },
+            { id: 82, text: "Mucor's sexual phase involves hyphal fusion producing zygospores.", answer: "true" },
+            { id: 83, text: "Pythium's physiology involves haustorial nutrient extraction.", answer: "true" },
+            { id: 84, text: "Fungi produce mycotoxins in agriculture.", answer: "true" },
+            { id: 85, text: "Nematodes cause $80B crop losses/year.", answer: "true" },
+            { id: 86, text: "Thallophyta have cell walls of cellulose in fungi.", answer: "false" },
+            { id: 87, text: "Pigments in algae protect against UV, like fucoxanthin in brown algae.", answer: "true" },
+            { id: 88, text: "Diatoms in forensics indicate drowning via frustules in lungs.", answer: "true" },
+            { id: 89, text: "Osmoregulation in algae uses contractile vacuoles in freshwater forms.", answer: "true" },
+            { id: 90, text: "Carrageenan from red algae is used in toothpaste.", answer: "true" },
+            { id: 91, text: "Fungal hyphae penetrate substrates for nutrient access.", answer: "true" },
+            { id: 92, text: "Mycorrhizal symbioses enhance plant growth in 80% plants.", answer: "true" },
+            { id: 93, text: "Statins are from Aspergillus in medicine.", answer: "true" },
+            { id: 94, text: "Algal blooms caused the 2019 Gulf of Mexico dead zone.", answer: "true" },
+            { id: 95, text: "Septate hyphae have porous walls in Ascomycota.", answer: "true" },
+            { id: 96, text: "Fungi contribute to biotechnology in brewing and antibiotics.", answer: "true" },
+            { id: 97, text: "Thallus is an undifferentiated body in Thallophyta.", answer: "true" },
+            { id: 98, text: "Hypha is a fungal filament.", answer: "true" },
+            { id: 99, text: "Darwin linked form to function via evolution in 1859.", answer: "true" },
+            { id: 100, text: "Galen lived from 129–200 AD and dissected animals.", answer: "true" }
+        ];
+
+        let currentQuestion = 1;
+        let userAnswers = {};
+        let totalQuestions = 100;
+        let startTime = new Date();
+        let timerInterval;
+
+        // Initialize the quiz
+        function initQuiz() {
+            renderQuestions();
+            renderQuestionIndex();
+            updateProgress();
+            updateScore();
+            updateStats();
+            startTimer();
+            
+            // Set up event listeners
+            document.getElementById('submitBtn').addEventListener('click', submitQuiz);
+            document.getElementById('resetBtn').addEventListener('click', resetQuiz);
+            
+            // Show first question
+            showQuestion(currentQuestion);
+        }
+
+        // Render all 100 questions
+        function renderQuestions() {
+            const questionsSection = document.getElementById('questionsSection');
+            questionsSection.innerHTML = '';
+            
+            questions.forEach((q) => {
+                const questionElement = document.createElement('div');
+                questionElement.className = 'question-container';
+                questionElement.id = `question-${q.id}`;
+                questionElement.innerHTML = `
+                    <div class="question-header">
+                        <div class="question-number">${q.id}</div>
+                        <div class="question-text">${q.text}</div>
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="q${q.id}-true" name="q${q.id}" value="true">
+                            <label for="q${q.id}-true">True</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q${q.id}-false" name="q${q.id}" value="false">
+                            <label for="q${q.id}-false">False</label>
+                        </div>
+                    </div>
+                    <div class="feedback" id="feedback-${q.id}"></div>
+                    <div class="question-nav">
+                        ${q.id > 1 ? `<button class="nav-button prev-btn" data-qid="${q.id}">Previous Question</button>` : '<div></div>'}
+                        ${q.id < totalQuestions ? `<button class="nav-button next-btn" data-qid="${q.id}">Next Question</button>` : ''}
+                    </div>
+                `;
+                
+                questionsSection.appendChild(questionElement);
+                
+                // Add event listeners to radio buttons
+                const radioButtons = questionElement.querySelectorAll('input[type="radio"]');
+                radioButtons.forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        const questionId = this.name.substring(1);
+                        userAnswers[questionId] = this.value;
+                        updateProgress();
+                        updateScore();
+                        updateStats();
+                        
+                        // Mark question as answered in index
+                        const indexItem = document.querySelector(`.index-item[data-qid="${questionId}"]`);
+                        if (indexItem) {
+                            indexItem.classList.add('answered');
+                        }
+                        
+                        // Show immediate feedback
+                        showFeedback(questionId);
+                    });
+                });
+                
+                // Add event listeners to navigation buttons
+                const prevBtn = questionElement.querySelector('.prev-btn');
+                if (prevBtn) {
+                    prevBtn.addEventListener('click', function() {
+                        const qid = parseInt(this.getAttribute('data-qid'));
+                        showQuestion(qid - 1);
+                    });
+                }
+                
+                const nextBtn = questionElement.querySelector('.next-btn');
+                if (nextBtn) {
+                    nextBtn.addEventListener('click', function() {
+                        const qid = parseInt(this.getAttribute('data-qid'));
+                        showQuestion(qid + 1);
+                    });
+                }
+            });
+        }
+
+        // Render question index for all 100 questions
+        function renderQuestionIndex() {
+            const questionIndex = document.getElementById('questionIndex');
+            questionIndex.innerHTML = '';
+            
+            for (let i = 1; i <= totalQuestions; i++) {
+                const indexItem = document.createElement('div');
+                indexItem.className = 'index-item';
+                indexItem.textContent = i;
+                indexItem.setAttribute('data-qid', i);
+                
+                indexItem.addEventListener('click', function() {
+                    const qid = parseInt(this.getAttribute('data-qid'));
+                    showQuestion(qid);
+                });
+                
+                questionIndex.appendChild(indexItem);
+            }
+        }
+
+        // Show a specific question
+        function showQuestion(qid) {
+            if (qid < 1 || qid > totalQuestions) return;
+            
+            // Hide all questions
+            document.querySelectorAll('.question-container').forEach(q => {
+                q.classList.remove('current');
+            });
+            
+            // Show selected question
+            const questionElement = document.getElementById(`question-${qid}`);
+            if (questionElement) {
+                questionElement.classList.add('current');
+                questionElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+            
+            // Update current question
+            currentQuestion = qid;
+            
+            // Update index highlighting
+            document.querySelectorAll('.index-item').forEach(item => {
+                item.classList.remove('current');
+            });
+            
+            const currentIndexItem = document.querySelector(`.index-item[data-qid="${qid}"]`);
+            if (currentIndexItem) {
+                currentIndexItem.classList.add('current');
+            }
+            
+            // Pre-select answer if user has answered this question
+            if (userAnswers[qid]) {
+                const radioButton = document.querySelector(`input[name="q${qid}"][value="${userAnswers[qid]}"]`);
+                if (radioButton) {
+                    radioButton.checked = true;
+                }
+            }
+        }
+
+        // Update progress bar
+        function updateProgress() {
+            const answeredCount = Object.keys(userAnswers).length;
+            const progressPercentage = Math.round((answeredCount / totalQuestions) * 100);
+            
+            document.getElementById('progressPercentage').textContent = `${progressPercentage}%`;
+            document.getElementById('progressFill').style.width = `${progressPercentage}%`;
+        }
+
+        // Update current score
+        function updateScore() {
+            let score = 0;
+            
+            for (const [questionId, userAnswer] of Object.entries(userAnswers)) {
+                if (correctAnswers[`q${questionId}`] === userAnswer) {
+                    score++;
+                }
+            }
+            
+            document.getElementById('currentScore').textContent = score;
+        }
+
+        // Update stats
+        function updateStats() {
+            const answeredCount = Object.keys(userAnswers).length;
+            const remainingCount = totalQuestions - answeredCount;
+            
+            document.getElementById('answeredCount').textContent = answeredCount;
+            document.getElementById('remainingCount').textContent = remainingCount;
+        }
+
+        // Start timer
+        function startTimer() {
+            startTime = new Date();
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        // Update timer display
+        function updateTimer() {
+            const now = new Date();
+            const diff = Math.floor((now - startTime) / 1000);
+            const minutes = Math.floor(diff / 60);
+            const seconds = diff % 60;
+            
+            document.getElementById('timeSpent').textContent = 
+                `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }
+
+        // Show feedback for a question
+        function showFeedback(questionId) {
+            const feedbackElement = document.getElementById(`feedback-${questionId}`);
+            if (!feedbackElement) return;
+            
+            const userAnswer = userAnswers[questionId];
+            const correctAnswer = correctAnswers[`q${questionId}`];
+            
+            if (userAnswer === correctAnswer) {
+                feedbackElement.textContent = "✓ Correct! Well done.";
+                feedbackElement.className = "feedback correct";
+            } else {
+                feedbackElement.textContent = `✗ Incorrect. The correct answer is "${correctAnswer}".`;
+                feedbackElement.className = "feedback incorrect";
+            }
+            
+            feedbackElement.style.display = 'block';
+        }
+
+        // Submit the quiz
+        function submitQuiz() {
+            clearInterval(timerInterval);
+            
+            let correctCount = 0;
+            let incorrectCount = 0;
+            let skippedCount = 0;
+            
+            // Calculate results
+            for (let i = 1; i <= totalQuestions; i++) {
+                const userAnswer = userAnswers[i];
+                const correctAnswer = correctAnswers[`q${i}`];
+                
+                if (!userAnswer) {
+                    skippedCount++;
+                } else if (userAnswer === correctAnswer) {
+                    correctCount++;
+                } else {
+                    incorrectCount++;
+                }
+            }
+            
+            // Show result section
+            document.getElementById('questionsSection').style.display = 'none';
+            document.querySelector('.sidebar').style.display = 'none';
+            document.querySelector('.quiz-stats').style.display = 'none';
+            
+            // Update result display
+            document.getElementById('finalScore').textContent = `${correctCount}/${totalQuestions}`;
+            document.getElementById('correctCount').textContent = correctCount;
+            document.getElementById('incorrectCount').textContent = incorrectCount;
+            document.getElementById('skippedCount').textContent = skippedCount;
+            
+            // Set result message
+            const percentage = (correctCount / totalQuestions) * 100;
+            let message = "";
+            if (percentage >= 90) {
+                message = "Outstanding! You've mastered morphology and physiology concepts.";
+            } else if (percentage >= 80) {
+                message = "Excellent work! You have a strong understanding of the subject.";
+            } else if (percentage >= 70) {
+                message = "Good job! You have a solid grasp of morphology and physiology.";
+            } else if (percentage >= 60) {
+                message = "Not bad! You understand the basics but could review some areas.";
+            } else if (percentage >= 50) {
+                message = "You're on the right track. Review the material for improvement.";
+            } else {
+                message = "Keep studying! Review the questions below to improve your understanding.";
+            }
+            document.getElementById('resultMessage').textContent = message;
+            
+            // Generate review list
+            const reviewList = document.getElementById('reviewList');
+            reviewList.innerHTML = '';
+            
+            for (let i = 1; i <= totalQuestions; i++) {
+                const userAnswer = userAnswers[i];
+                const correctAnswer = correctAnswers[`q${i}`];
+                const question = questions[i-1];
+                
+                const reviewItem = document.createElement('div');
+                
+                let statusClass = '';
+                let statusText = '';
+                if (!userAnswer) {
+                    statusClass = 'skipped';
+                    statusText = 'Skipped';
+                } else if (userAnswer === correctAnswer) {
+                    statusClass = 'correct';
+                    statusText = 'Correct';
+                } else {
+                    statusClass = 'incorrect';
+                    statusText = 'Incorrect';
+                }
+                
+                reviewItem.className = `review-item ${statusClass}`;
+                
+                reviewItem.innerHTML = `
+                    <div class="review-question">${i}. ${question.text}</div>
+                    <div class="review-answer">
+                        <span class="user-answer">Your answer: ${userAnswer || 'Not answered'}</span>
+                        <span class="correct-answer">Correct answer: ${correctAnswer}</span>
+                        <span class="status status-${statusClass}">${statusText}</span>
+                    </div>
+                `;
+                
+                reviewList.appendChild(reviewItem);
+            }
+            
+            // Show result section
+            document.getElementById('resultSection').style.display = 'block';
+            document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Reset the quiz
+        function resetQuiz() {
+            if (confirm("Are you sure you want to reset the quiz? All your answers and progress will be lost.")) {
+                userAnswers = {};
+                currentQuestion = 1;
+                startTime = new Date();
+                
+                // Reset UI
+                document.getElementById('questionsSection').style.display = 'block';
+                document.querySelector('.sidebar').style.display = 'block';
+                document.querySelector('.quiz-stats').style.display = 'flex';
+                document.getElementById('resultSection').style.display = 'none';
+                
+                // Uncheck all radio buttons
+                document.querySelectorAll('input[type="radio"]').forEach(radio => {
+                    radio.checked = false;
+                });
+                
+                // Hide all feedback
+                document.querySelectorAll('.feedback').forEach(feedback => {
+                    feedback.style.display = 'none';
+                });
+                
+                // Reset index items
+                document.querySelectorAll('.index-item').forEach(item => {
+                    item.classList.remove('answered');
+                });
+                
+                // Show first question
+                showQuestion(1);
+                
+                // Update progress, score and stats
+                updateProgress();
+                updateScore();
+                updateStats();
+                
+                // Restart timer
+                clearInterval(timerInterval);
+                startTimer();
+            }
+        }
+
+        // Initialize the quiz when the page loads
+        document.addEventListener('DOMContentLoaded', initQuiz);
+    </script>
+</body>
+</html>
